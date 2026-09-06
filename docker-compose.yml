@@ -1,0 +1,125 @@
+services:
+
+  # =========================
+  # PostgreSQL Database
+  # =========================
+  postgres:
+    image: postgres:16
+    container_name: banking-postgres
+
+    environment:
+      POSTGRES_DB: bankdb
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin123
+
+    ports:
+      - "5434:5432"
+
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+    networks:
+      - banking-network
+
+
+  # =========================
+  # Keycloak
+  # =========================
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.2
+    container_name: banking-keycloak
+
+    command:
+      - start-dev
+
+    environment:
+      KC_BOOTSTRAP_ADMIN_USERNAME: admin
+      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+
+    ports:
+      - "8180:8080"
+
+    depends_on:
+      - postgres
+
+    networks:
+      - banking-network
+
+
+  # =========================
+  # Spring Boot Backend
+  # =========================
+  backend:
+    build:
+      context: ./banking-crud-ap
+      dockerfile: Dockerfile
+
+    container_name: banking-backend
+
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/bankdb
+      SPRING_DATASOURCE_USERNAME: postgres
+      SPRING_DATASOURCE_PASSWORD: admin123
+
+      SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_ISSUER_URI: http://keycloak:8080/realms/banking-realm
+
+    depends_on:
+      - postgres
+      - keycloak
+
+    networks:
+      - banking-network
+
+
+  # =========================
+  # React Frontend
+  # =========================
+  frontend:
+    build:
+      context: ./banking-frontend
+      dockerfile: Dockerfile
+
+    container_name: banking-frontend
+
+    depends_on:
+      - backend
+
+    networks:
+      - banking-network
+
+
+  # =========================
+  # Nginx Gateway
+  # =========================
+  nginx:
+    image: nginx:alpine
+    container_name: banking-nginx
+
+    ports:
+      - "8080:80"
+
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+
+    depends_on:
+      - frontend
+      - backend
+      - keycloak
+
+    networks:
+      - banking-network
+
+
+# =========================
+# Network
+# =========================
+networks:
+  banking-network:
+    driver: bridge
+
+
+# =========================
+# PostgreSQL Volume
+# =========================
+volumes:
+  postgres_data:
