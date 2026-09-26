@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import api from "../../services/api";
 import { Link } from "react-router-dom";
 import { hasRole } from "../../auth/roles";
+
 function AccountList() {
   const isAdmin = hasRole("ADMIN");
   const [accounts, setAccounts] = useState([]);
@@ -49,29 +50,25 @@ function AccountList() {
   return (
     <div>
       {/* Header */}
-<div className="mb-8 flex items-center justify-between">
-
-  <div>
-    <h1 className="text-3xl font-bold text-slate-900">
-      Accounts
-    </h1>
-
-    <p className="mt-1 text-slate-500">
-      View and manage all bank accounts
-    </p>
-  </div>
-
-  {isAdmin && (
-    <Link
-      to="/accounts/create"
-      className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
-    >
-      <span className="text-lg">+</span>
-      Create Account
-    </Link>
-  )}
-
-</div>
+      <div className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold text-slate-900">
+            Accounts
+          </h1>
+          <p className="mt-1 text-slate-500">
+            View and manage all bank accounts
+          </p>
+        </div>
+        {isAdmin && (
+          <Link
+            to="/accounts/create"
+            className="inline-flex items-center gap-2 px-5 py-3 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition-colors"
+          >
+            <span className="text-lg">+</span>
+            Create Account
+          </Link>
+        )}
+      </div>
 
       {accounts.length === 0 ? (
         <div className="bg-white border border-slate-200 rounded-2xl p-12 text-center">

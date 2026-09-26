@@ -4,6 +4,7 @@ import CustomerList from "./pages/customers/CustomerList";
 import Navbar from "./components/Navbar";
 import CreateCustomer from "./pages/customers/CreateCustomer";
 import AccountList from "./pages/accounts/AccountList";
+import CreateAccount from "./pages/accounts/CreateAccount";
 import AccountDetails from "./pages/accounts/AccountDetails";
 import TransactionHistory from "./pages/accounts/TransactionHistory";
 import CreateTransaction from "./pages/accounts/CreateTransaction";
@@ -23,9 +24,10 @@ function App() {
             <Route path="/customers" element={<CustomerList />} />
             <Route path="/customers/create" element={<CreateCustomer />} />
             <Route path="/accounts" element={<AccountList />} />
-            <Route path="/accounts/:accountId" element={<AccountDetails />} />
-            <Route path="/accounts/:accountId/transactions" element={<TransactionHistory />} />
+            <Route path="/accounts/create" element={<CreateAccount />} />
             <Route path="/accounts/:accountId/transactions/create" element={<CreateTransaction />} />
+            <Route path="/accounts/:accountId/transactions" element={<TransactionHistory />} />
+            <Route path="/accounts/:accountId" element={<AccountDetails />} />
             <Route path="/beneficiaries" element={<BeneficiaryList />} />
             <Route path="/beneficiaries/create" element={<CreateBeneficiary />} />
             <Route path="/consents" element={<ConsentList />} />

@@ -12,4 +12,8 @@ public interface TransactionService {
 
     List<TransactionResponseDTO> getTransactionsByAccount(Long accountId);
 
+    TransactionResponseDTO approveTransaction(Long accountId, Long transactionId);
+
+    TransactionResponseDTO rejectTransaction(Long accountId, Long transactionId);
+
 }

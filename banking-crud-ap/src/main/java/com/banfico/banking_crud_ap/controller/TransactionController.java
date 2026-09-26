@@ -35,4 +35,22 @@ public class TransactionController {
 
     }
 
+    @PutMapping("/{accountId}/transactions/{transactionId}/approve")
+    public TransactionResponseDTO approveTransaction(
+            @PathVariable Long accountId,
+            @PathVariable Long transactionId){
+
+        return transactionService.approveTransaction(accountId, transactionId);
+
+    }
+
+    @PutMapping("/{accountId}/transactions/{transactionId}/reject")
+    public TransactionResponseDTO rejectTransaction(
+            @PathVariable Long accountId,
+            @PathVariable Long transactionId){
+
+        return transactionService.rejectTransaction(accountId, transactionId);
+
+    }
+
 }

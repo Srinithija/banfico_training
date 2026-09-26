@@ -34,32 +34,12 @@ public class TransactionServiceImpl implements TransactionService {
                 .orElseThrow(() ->
                         new ResourceNotFoundException("Account Not Found"));
 
-        if (request.getTransactionType().equalsIgnoreCase("DEPOSIT")) {
-
-            account.setBalance(
-                    account.getBalance() + request.getAmount()
-            );
-
-        } else if (request.getTransactionType().equalsIgnoreCase("WITHDRAW")) {
-
-            if (account.getBalance() < request.getAmount()) {
-
-                throw new RuntimeException("Insufficient Balance");
-
-            }
-
-            account.setBalance(
-                    account.getBalance() - request.getAmount()
-            );
-
-        }
-
-        accountRepository.save(account);
-
+        // DO NOT update balance here - balance only updates on approval
         Transaction transaction = Transaction.builder()
                 .amount(request.getAmount())
                 .transactionType(request.getTransactionType())
                 .account(account)
+                .status(Transaction.TransactionStatus.PENDING)
                 .build();
 
         Transaction savedTransaction =
@@ -79,6 +59,84 @@ public class TransactionServiceImpl implements TransactionService {
 
     }
 
+    @Override
+    public TransactionResponseDTO approveTransaction(Long accountId, Long transactionId) {
+
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account Not Found"));
+
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction Not Found"));
+
+        // Verify transaction belongs to the account
+        if (!transaction.getAccount().getId().equals(accountId)) {
+            throw new RuntimeException("Transaction does not belong to this account");
+        }
+
+        // Handle existing transactions with null status (backward compatibility)
+        Transaction.TransactionStatus currentStatus = transaction.getStatus();
+        if (currentStatus == null) {
+            currentStatus = Transaction.TransactionStatus.PENDING;
+        }
+
+        // Verify status is PENDING
+        if (currentStatus != Transaction.TransactionStatus.PENDING) {
+            throw new RuntimeException("Only PENDING transactions can be approved");
+        }
+
+        // Process the transaction based on type
+        if (transaction.getTransactionType().equalsIgnoreCase("DEPOSIT")) {
+            account.setBalance(account.getBalance() + transaction.getAmount());
+        } else if (transaction.getTransactionType().equalsIgnoreCase("WITHDRAW")) {
+            if (account.getBalance() < transaction.getAmount()) {
+                throw new RuntimeException("Insufficient Balance for withdrawal");
+            }
+            account.setBalance(account.getBalance() - transaction.getAmount());
+        }
+
+        // Update transaction status
+        transaction.setStatus(Transaction.TransactionStatus.APPROVED);
+
+        // Save both
+        accountRepository.save(account);
+        Transaction savedTransaction = transactionRepository.save(transaction);
+
+        return mapToResponse(savedTransaction);
+    }
+
+    @Override
+    public TransactionResponseDTO rejectTransaction(Long accountId, Long transactionId) {
+
+        Account account = accountRepository.findById(accountId)
+                .orElseThrow(() -> new ResourceNotFoundException("Account Not Found"));
+
+        Transaction transaction = transactionRepository.findById(transactionId)
+                .orElseThrow(() -> new ResourceNotFoundException("Transaction Not Found"));
+
+        // Verify transaction belongs to the account
+        if (!transaction.getAccount().getId().equals(accountId)) {
+            throw new RuntimeException("Transaction does not belong to this account");
+        }
+
+        // Handle existing transactions with null status (backward compatibility)
+        Transaction.TransactionStatus currentStatus = transaction.getStatus();
+        if (currentStatus == null) {
+            currentStatus = Transaction.TransactionStatus.PENDING;
+        }
+
+        // Verify status is PENDING
+        if (currentStatus != Transaction.TransactionStatus.PENDING) {
+            throw new RuntimeException("Only PENDING transactions can be rejected");
+        }
+
+        // Update transaction status - DO NOT modify balance
+        transaction.setStatus(Transaction.TransactionStatus.REJECTED);
+
+        Transaction savedTransaction = transactionRepository.save(transaction);
+
+        return mapToResponse(savedTransaction);
+    }
+
     private TransactionResponseDTO mapToResponse(Transaction transaction) {
 
         TransactionResponseDTO response =
@@ -95,6 +153,10 @@ public class TransactionServiceImpl implements TransactionService {
         response.setTransactionDate(
                 transaction.getTransactionDate()
         );
+
+        // Handle existing transactions with null status (backward compatibility)
+        response.setStatus(transaction.getStatus() != null ?
+                transaction.getStatus() : Transaction.TransactionStatus.PENDING);
 
         response.setAccountId(
                 transaction.getAccount().getId()

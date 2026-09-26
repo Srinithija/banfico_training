@@ -1,12 +1,16 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import api from "../../services/api";
+import { hasRole } from "../../auth/roles";
 
 function TransactionHistory() {
   const { accountId } = useParams();
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+
+  const isMaker = hasRole("MAKER");
+  const isChecker = hasRole("CHECKER");
 
   useEffect(() => {
     fetchTransactions();
@@ -21,6 +25,37 @@ function TransactionHistory() {
       setError("Failed to load transactions");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleApprove = async (transactionId) => {
+    try {
+      await api.put(`/accounts/${accountId}/transactions/${transactionId}/approve`);
+      fetchTransactions();
+    } catch (error) {
+      alert("Failed to approve transaction");
+    }
+  };
+
+  const handleReject = async (transactionId) => {
+    try {
+      await api.put(`/accounts/${accountId}/transactions/${transactionId}/reject`);
+      fetchTransactions();
+    } catch (error) {
+      alert("Failed to reject transaction");
+    }
+  };
+
+  const getStatusColor = (status) => {
+    switch (status) {
+      case "PENDING":
+        return "bg-yellow-50 text-yellow-700 border-yellow-200";
+      case "APPROVED":
+        return "bg-green-50 text-green-700 border-green-200";
+      case "REJECTED":
+        return "bg-red-50 text-red-700 border-red-200";
+      default:
+        return "bg-slate-50 text-slate-700 border-slate-200";
     }
   };
 
@@ -64,15 +99,17 @@ function TransactionHistory() {
           <p className="mt-1 text-slate-500">Account #{accountId}</p>
         </div>
 
-        <Link
-          to={`/accounts/${accountId}/transactions/create`}
-          className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-xl transition-colors shadow-sm"
-        >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-          </svg>
-          Create Transaction
-        </Link>
+        {isMaker && (
+          <Link
+            to={`/accounts/${accountId}/transactions/create`}
+            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-xl transition-colors shadow-sm"
+          >
+            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+            </svg>
+            Create Transaction
+          </Link>
+        )}
       </div>
 
       {transactions.length === 0 ? (
@@ -84,12 +121,14 @@ function TransactionHistory() {
           </div>
           <h3 className="text-lg font-medium text-slate-900 mb-1">No transactions found</h3>
           <p className="text-slate-500 mb-6">This account has no transactions yet.</p>
-          <Link
-            to={`/accounts/${accountId}/transactions/create`}
-            className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-xl transition-colors"
-          >
-            Create First Transaction
-          </Link>
+          {isMaker && (
+            <Link
+              to={`/accounts/${accountId}/transactions/create`}
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2.5 rounded-xl transition-colors"
+            >
+              Create First Transaction
+            </Link>
+          )}
         </div>
       ) : (
         <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-sm">
@@ -100,7 +139,9 @@ function TransactionHistory() {
                   <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">ID</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Amount</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Type</th>
+                  <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
                   <th className="px-6 py-4 text-left text-xs font-semibold text-slate-500 uppercase tracking-wider">Date</th>
+                  <th className="px-6 py-4 text-right text-xs font-semibold text-slate-500 uppercase tracking-wider">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-200">
@@ -121,8 +162,40 @@ function TransactionHistory() {
                         {transaction.transactionType}
                       </span>
                     </td>
+                    <td className="px-6 py-4 whitespace-nowrap">
+                      <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium border ${getStatusColor(transaction.status)}`}>
+                        {transaction.status || "PENDING"}
+                      </span>
+                    </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-slate-600">
                       {transaction.transactionDate}
+                    </td>
+                    <td className="px-6 py-4 whitespace-nowrap text-right">
+                      {transaction.status === "PENDING" && isChecker && (
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleApprove(transaction.id)}
+                            className="inline-flex items-center gap-1 text-sm font-medium text-green-600 hover:text-green-800 transition-colors"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                            </svg>
+                            Approve
+                          </button>
+                          <button
+                            onClick={() => handleReject(transaction.id)}
+                            className="inline-flex items-center gap-1 text-sm font-medium text-red-600 hover:text-red-800 transition-colors"
+                          >
+                            <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                            Reject
+                          </button>
+                        </div>
+                      )}
+                      {transaction.status !== "PENDING" && (
+                        <span className="text-sm text-slate-400">No actions</span>
+                      )}
                     </td>
                   </tr>
                 ))}

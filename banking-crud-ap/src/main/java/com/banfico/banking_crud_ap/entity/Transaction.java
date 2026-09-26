@@ -26,6 +26,10 @@ public class Transaction {
     @Column(nullable = false)
     private LocalDateTime transactionDate;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = true)
+    private TransactionStatus status;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "account_id")
     private Account account;
@@ -33,5 +37,12 @@ public class Transaction {
     @PrePersist
     public void prePersist() {
         transactionDate = LocalDateTime.now();
+        status = TransactionStatus.PENDING;
+    }
+
+    public enum TransactionStatus {
+        PENDING,
+        APPROVED,
+        REJECTED
     }
 }

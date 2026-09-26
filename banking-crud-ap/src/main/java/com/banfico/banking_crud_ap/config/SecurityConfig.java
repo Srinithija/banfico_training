@@ -55,6 +55,18 @@ public class SecurityConfig {
                         )
                         .authenticated()
 
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/accounts/*/transactions/*/approve"
+                        )
+                        .hasRole("CHECKER")
+
+                        .requestMatchers(
+                                HttpMethod.PUT,
+                                "/api/accounts/*/transactions/*/reject"
+                        )
+                        .hasRole("CHECKER")
+
                         .requestMatchers("/api/beneficiaries")
                         .authenticated()
 
