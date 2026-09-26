@@ -9,6 +9,8 @@ import TransactionHistory from "./pages/accounts/TransactionHistory";
 import CreateTransaction from "./pages/accounts/CreateTransaction";
 import BeneficiaryList from "./pages/beneficiaries/BeneficiaryList";
 import CreateBeneficiary from "./pages/beneficiaries/CreateBeneficiary";
+import ConsentList from "./pages/consents/ConsentList";
+import CreateConsent from "./pages/consents/CreateConsent";
 
 function App() {
   return (
@@ -26,6 +28,8 @@ function App() {
             <Route path="/accounts/:accountId/transactions/create" element={<CreateTransaction />} />
             <Route path="/beneficiaries" element={<BeneficiaryList />} />
             <Route path="/beneficiaries/create" element={<CreateBeneficiary />} />
+            <Route path="/consents" element={<ConsentList />} />
+            <Route path="/consents/create" element={<CreateConsent />} />
           </Routes>
         </main>
       </div>

@@ -20,6 +20,7 @@ function Navbar() {
     { path: "/customers", label: "Customers" },
     { path: "/accounts", label: "Accounts" },
     { path: "/beneficiaries", label: "Beneficiaries" },
+    { path: "/consents", label: "Consents" },
   ];
 
   const isActive = (path) => {

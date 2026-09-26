@@ -67,6 +67,22 @@ public class SecurityConfig {
                         .requestMatchers("/api/customers/**")
                         .authenticated()
 
+                        // Consent Management
+                        .requestMatchers(HttpMethod.POST, "/api/consents")
+                        .hasRole("MAKER")
+
+                        .requestMatchers(HttpMethod.GET, "/api/consents")
+                        .authenticated()
+
+                        .requestMatchers(HttpMethod.GET, "/api/consents/**")
+                        .authenticated()
+
+                        .requestMatchers(HttpMethod.PUT, "/api/consents/*/approve")
+                        .hasRole("CHECKER")
+
+                        .requestMatchers(HttpMethod.PUT, "/api/consents/*/reject")
+                        .hasRole("CHECKER")
+
                         .anyRequest()
                         .authenticated()
                 )
