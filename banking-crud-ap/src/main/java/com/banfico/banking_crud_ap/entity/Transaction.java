@@ -1,4 +1,5 @@
 package com.banfico.banking_crud_ap.entity;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,7 +28,7 @@ public class Transaction {
     private LocalDateTime transactionDate;
 
     @Enumerated(EnumType.STRING)
-    @Column(nullable = true)
+    @Column(nullable = false, columnDefinition = "varchar(20) default 'PENDING'")
     private TransactionStatus status;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -37,12 +38,6 @@ public class Transaction {
     @PrePersist
     public void prePersist() {
         transactionDate = LocalDateTime.now();
-        status = TransactionStatus.PENDING;
-    }
-
-    public enum TransactionStatus {
-        PENDING,
-        APPROVED,
-        REJECTED
+        if (status == null) status = TransactionStatus.PENDING;
     }
 }

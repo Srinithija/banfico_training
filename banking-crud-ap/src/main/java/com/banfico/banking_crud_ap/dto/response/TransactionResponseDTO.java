@@ -1,6 +1,6 @@
 package com.banfico.banking_crud_ap.dto.response;
 
-import com.banfico.banking_crud_ap.entity.Transaction;
+import com.banfico.banking_crud_ap.entity.TransactionStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -9,15 +9,9 @@ import java.time.LocalDateTime;
 public class TransactionResponseDTO {
 
     private Long id;
-
     private Double amount;
-
     private String transactionType;
-
     private LocalDateTime transactionDate;
-
-    private Transaction.TransactionStatus status;
-
+    private TransactionStatus status;
     private Long accountId;
-
 }

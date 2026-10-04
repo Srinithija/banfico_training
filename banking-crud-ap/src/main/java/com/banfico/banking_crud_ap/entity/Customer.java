@@ -1,7 +1,10 @@
 package com.banfico.banking_crud_ap.entity;
+
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
+
 @Entity
 @Table(name = "customers")
 @Getter
@@ -26,6 +29,11 @@ public class Customer {
 
     @Column(nullable = false)
     private String address;
+
+    // Keycloak user UUID — links JWT "sub" claim to this customer record.
+    // Nullable because existing customers pre-date Keycloak user creation.
+    @Column(unique = true)
+    private String keycloakId;
 
     private LocalDateTime createdAt;
 

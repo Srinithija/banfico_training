@@ -1,6 +1,6 @@
 package com.banfico.banking_crud_ap.service.impl;
 
-import com.banfico.banking_crud_ap.dto.request.AccountRequestDTO;
+import com.banfico.banking_crud_ap.dto.request.AccountCreateDTO;
 import com.banfico.banking_crud_ap.dto.response.AccountResponseDTO;
 import com.banfico.banking_crud_ap.entity.Account;
 import com.banfico.banking_crud_ap.entity.Customer;
@@ -27,7 +27,7 @@ public class AccountServiceImpl implements AccountService {
     }
 
     @Override
-    public AccountResponseDTO createAccount(AccountRequestDTO request) {
+    public AccountResponseDTO createAccount(AccountCreateDTO request) {
 
         Customer customer = customerRepository.findById(request.getCustomerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer Not Found"));
@@ -64,7 +64,7 @@ public class AccountServiceImpl implements AccountService {
 
     @Override
     public AccountResponseDTO updateAccount(Long id,
-                                            AccountRequestDTO request) {
+                                            AccountCreateDTO request) {
 
         Account account = accountRepository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Account Not Found"));
@@ -99,7 +99,8 @@ public class AccountServiceImpl implements AccountService {
         response.setAccountNumber(account.getAccountNumber());
         response.setAccountType(account.getAccountType());
         response.setBalance(account.getBalance());
-
+            response.setStatus(account.getStatus());           // ← add this
+    response.setCreatedAt(account.getCreatedAt()); 
         response.setCustomerId(account.getCustomer().getId());
         response.setCustomerName(account.getCustomer().getFullName());
 

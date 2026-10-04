@@ -16,4 +16,8 @@ public interface BeneficiaryService {
     List<BeneficiaryResponseDTO> getBeneficiariesByCustomer(Long customerId);
 
     void deleteBeneficiary(Long id);
+
+    BeneficiaryResponseDTO approveBeneficiary(Long id);
+
+    BeneficiaryResponseDTO rejectBeneficiary(Long id);
 }

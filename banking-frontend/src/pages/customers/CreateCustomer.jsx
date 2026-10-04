@@ -38,7 +38,14 @@ function CreateCustomer() {
       }, 1000);
     } catch (error) {
       console.error("Create Customer Error:", error);
-      setError("Failed to create customer.");
+      const data = error.response?.data;
+      if (data?.errors?.length) {
+        setError(data.errors.join(" | "));
+      } else if (data?.message) {
+        setError(data.message);
+      } else {
+        setError("Failed to create customer. Please try again.");
+      }
     } finally {
       setLoading(false);
     }

@@ -1,5 +1,6 @@
 package com.banfico.banking_crud_ap.dto.response;
 
+import com.banfico.banking_crud_ap.entity.BeneficiaryStatus;
 import lombok.Data;
 
 import java.time.LocalDateTime;
@@ -14,6 +15,7 @@ public class BeneficiaryResponseDTO {
     private String ifscCode;
     private String email;
     private String phone;
+    private BeneficiaryStatus status;
     private LocalDateTime createdAt;
     private Long customerId;
     private String customerName;

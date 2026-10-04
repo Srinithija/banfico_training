@@ -4,6 +4,7 @@ import com.banfico.banking_crud_ap.dto.request.BeneficiaryRequestDTO;
 import com.banfico.banking_crud_ap.dto.response.BeneficiaryResponseDTO;
 import com.banfico.banking_crud_ap.service.BeneficiaryService;
 import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,6 +20,7 @@ public class BeneficiaryController {
     }
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public BeneficiaryResponseDTO createBeneficiary(
             @Valid @RequestBody BeneficiaryRequestDTO request) {
 
@@ -50,5 +52,17 @@ public class BeneficiaryController {
         beneficiaryService.deleteBeneficiary(id);
 
         return "Beneficiary deleted successfully";
+    }
+
+    @PutMapping("/{id}/approve")
+    public BeneficiaryResponseDTO approveBeneficiary(@PathVariable Long id) {
+
+        return beneficiaryService.approveBeneficiary(id);
+    }
+
+    @PutMapping("/{id}/reject")
+    public BeneficiaryResponseDTO rejectBeneficiary(@PathVariable Long id) {
+
+        return beneficiaryService.rejectBeneficiary(id);
     }
 }

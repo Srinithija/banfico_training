@@ -3,6 +3,7 @@ package com.banfico.banking_crud_ap.service.impl;
 import com.banfico.banking_crud_ap.dto.request.BeneficiaryRequestDTO;
 import com.banfico.banking_crud_ap.dto.response.BeneficiaryResponseDTO;
 import com.banfico.banking_crud_ap.entity.Beneficiary;
+import com.banfico.banking_crud_ap.entity.BeneficiaryStatus;
 import com.banfico.banking_crud_ap.entity.Customer;
 import com.banfico.banking_crud_ap.exception.ResourceNotFoundException;
 import com.banfico.banking_crud_ap.repository.BeneficiaryRepository;
@@ -27,6 +28,10 @@ public class BeneficiaryServiceImpl implements BeneficiaryService {
 
     @Override
     public BeneficiaryResponseDTO createBeneficiary(BeneficiaryRequestDTO request) {
+
+        if (request.getCustomerId() == null) {
+            throw new IllegalArgumentException("Customer ID is required");
+        }
 
         Customer customer = customerRepository.findById(request.getCustomerId())
                 .orElseThrow(() -> new ResourceNotFoundException("Customer not found"));
@@ -82,6 +87,38 @@ public class BeneficiaryServiceImpl implements BeneficiaryService {
         beneficiaryRepository.delete(beneficiary);
     }
 
+    @Override
+    public BeneficiaryResponseDTO approveBeneficiary(Long id) {
+
+        Beneficiary beneficiary = beneficiaryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Beneficiary not found"));
+
+        if (beneficiary.getStatus() != BeneficiaryStatus.PENDING) {
+            throw new IllegalStateException("Only PENDING beneficiaries can be approved");
+        }
+
+        beneficiary.setStatus(BeneficiaryStatus.APPROVED);
+        Beneficiary saved = beneficiaryRepository.save(beneficiary);
+
+        return mapToResponse(saved);
+    }
+
+    @Override
+    public BeneficiaryResponseDTO rejectBeneficiary(Long id) {
+
+        Beneficiary beneficiary = beneficiaryRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Beneficiary not found"));
+
+        if (beneficiary.getStatus() != BeneficiaryStatus.PENDING) {
+            throw new IllegalStateException("Only PENDING beneficiaries can be rejected");
+        }
+
+        beneficiary.setStatus(BeneficiaryStatus.REJECTED);
+        Beneficiary saved = beneficiaryRepository.save(beneficiary);
+
+        return mapToResponse(saved);
+    }
+
     private BeneficiaryResponseDTO mapToResponse(Beneficiary beneficiary) {
 
         BeneficiaryResponseDTO response = new BeneficiaryResponseDTO();
@@ -93,6 +130,7 @@ public class BeneficiaryServiceImpl implements BeneficiaryService {
         response.setIfscCode(beneficiary.getIfscCode());
         response.setEmail(beneficiary.getEmail());
         response.setPhone(beneficiary.getPhone());
+        response.setStatus(beneficiary.getStatus());
         response.setCreatedAt(beneficiary.getCreatedAt());
         response.setCustomerId(beneficiary.getCustomer().getId());
         response.setCustomerName(beneficiary.getCustomer().getFullName());

@@ -52,7 +52,14 @@ function CreateConsent() {
       }, 1000);
     } catch (error) {
       console.error("Create Consent Error:", error);
-      setError("Failed to create consent.");
+      const data = error.response?.data;
+      if (data?.errors?.length) {
+        setError(data.errors.join(" | "));
+      } else if (data?.message) {
+        setError(data.message);
+      } else {
+        setError("Failed to create consent. Please try again.");
+      }
     } finally {
       setLoading(false);
     }

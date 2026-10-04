@@ -36,6 +36,10 @@ public class Beneficiary {
     @Column(nullable = false)
     private String phone;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false, columnDefinition = "varchar(20) default 'PENDING'")
+    private BeneficiaryStatus status;
+
     private LocalDateTime createdAt;
 
     @ManyToOne
@@ -45,5 +49,6 @@ public class Beneficiary {
     @PrePersist
     public void prePersist() {
         createdAt = LocalDateTime.now();
+        status = BeneficiaryStatus.PENDING;
     }
 }

@@ -1,6 +1,6 @@
 package com.banfico.banking_crud_ap.controller;
 
-import com.banfico.banking_crud_ap.dto.request.AccountRequestDTO;
+import com.banfico.banking_crud_ap.dto.request.AccountCreateDTO;
 import com.banfico.banking_crud_ap.dto.response.AccountResponseDTO;
 import com.banfico.banking_crud_ap.service.AccountService;
 import jakarta.validation.Valid;
@@ -20,7 +20,7 @@ public class AccountController {
 
     @PostMapping
     public AccountResponseDTO createAccount(
-            @Valid @RequestBody AccountRequestDTO request) {
+            @Valid @RequestBody AccountCreateDTO request) {
 
         return accountService.createAccount(request);
     }
@@ -40,7 +40,7 @@ public class AccountController {
     @PutMapping("/{id}")
     public AccountResponseDTO updateAccount(
             @PathVariable Long id,
-            @Valid @RequestBody AccountRequestDTO request) {
+            @Valid @RequestBody AccountCreateDTO request) {
 
         return accountService.updateAccount(id, request);
     }

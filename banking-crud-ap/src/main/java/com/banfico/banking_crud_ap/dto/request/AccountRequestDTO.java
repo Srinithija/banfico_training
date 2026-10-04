@@ -1,23 +1,17 @@
 package com.banfico.banking_crud_ap.dto.request;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 
+/**
+ * Request body for customer submitting an account application.
+ * customerId is resolved from JWT — not required in body.
+ */
 @Data
 public class AccountRequestDTO {
 
-    @NotBlank(message = "Account Number is required")
-    private String accountNumber;
+    @NotBlank(message = "Account type is required")
+    private String accountType;   // SAVINGS, CURRENT, FIXED_DEPOSIT
 
-    @NotBlank(message = "Account Type is required")
-    private String accountType;
-
-    @NotNull(message = "Balance is required")
-    @Min(value = 0, message = "Balance cannot be negative")
-    private Double balance;
-
-    @NotNull(message = "Customer ID is required")
-    private Long customerId;
+    private String notes;          // optional reason/note from customer
 }

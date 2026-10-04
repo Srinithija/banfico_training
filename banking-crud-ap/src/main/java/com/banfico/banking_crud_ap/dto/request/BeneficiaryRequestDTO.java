@@ -25,6 +25,8 @@ public class BeneficiaryRequestDTO {
     @Pattern(regexp = "^[0-9]{10}$", message = "Phone must contain exactly 10 digits")
     private String phone;
 
-    @NotNull(message = "Customer ID is required")
+    // Optional for customer portal — the backend resolves customerId from the JWT.
+    // Required for staff (MAKER) flow — BeneficiaryServiceImpl uses this value.
+    // Validation is done in the service layer for staff, not at DTO level.
     private Long customerId;
 }

@@ -35,7 +35,14 @@ function CreateAccount() {
       navigate("/accounts");
     } catch (err) {
       console.error("Create Account Error:", err);
-      setError("Failed to create account. Please try again.");
+      const data = err.response?.data;
+      if (data?.errors?.length) {
+        setError(data.errors.join(" | "));
+      } else if (data?.message) {
+        setError(data.message);
+      } else {
+        setError("Failed to create account. Please try again.");
+      }
     } finally {
       setLoading(false);
     }
